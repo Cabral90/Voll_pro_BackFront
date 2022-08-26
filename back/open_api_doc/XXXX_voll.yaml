@@ -1,0 +1,1015 @@
+openapi: 3.0.0
+info:
+  title: iOT ChirpStack
+  description: >-
+    OpenApi3 Mantenimiento de Voluntarios HNSP - VHIR.
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: cabralzay@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+servers:
+  - url: 'https://localhost:8080/v1'
+  - url: 'http://localhost:8080/v1'
+tags:
+  - name: Voluntarios CRUD
+    description: ''
+  - name: Mantenimiento Voluntarios
+    description: Crud Application
+    externalDocs:
+      description: Aplicacio nde mantenimiento y registro de voluntarios
+      url: ''
+
+# security: -- ver tipo de autenticacion
+security:
+  - bearerAuth: []
+paths:
+  /voluntarios:
+    post:
+      tags:
+        - voluntario
+      summary: Crear Voluntario
+      operationId: createvoll
+      requestBody:
+        description: Crear voluntario y añadir en la DB de registro.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Voluntario'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBody'
+    get:
+      tags:
+        - voluntario
+      summary: Mustra todos los voluntarios
+      description: Devulve la lista de todos los voluntarios
+      operationId: getAllVoll
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoluntarioList'
+        '404':
+          description: Voluntario not found
+          content: {}
+
+  '/voluntarios/{vollId}':
+    put:
+      tags:
+        - voluntario
+      summary: Actualizar los datos del Voluntarios si existe en la BD.
+      operationId: updateVoll
+      parameters:
+        - $ref: '#/components/parameters/volunIdPath'
+      requestBody:
+        description: Requiere el Id del Voluntario para actualizar.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Voluntario'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+    
+    delete:
+      tags:
+        - voluntario
+      summary: Borrar un determinano voluntario  por id en la BD. 
+      operationId: deleteVoll
+      parameters:
+        - $ref: '#/components/parameters/volunIdPath'
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: voluntario not found
+          content: {}
+
+    get:
+      tags:
+        - voluntario
+      summary: Buscar el voluntario por ID
+      description: Devuelve un determinado Voluntario 
+      operationId: getVollById
+      parameters:
+        - $ref: '#/components/parameters/volunIdPath'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoluntarioLis'
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: Voluntario not found
+          content: {}
+
+  # -- ESPECIALIDAD VOLL 
+  # /especilaidades:
+  #   post:
+  #     tags:
+  #       - especialidad
+  #     summary: Crear Especialidad de Voluntarios
+  #     operationId: createEspVoll
+  #     requestBody:
+  #       description: Crear Especialidad de Voluntarios.
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/creavoll'
+  #       required: true
+  #     x-codegen-request-body-name: body
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/ResponseBody'
+  #   get:
+  #     tags:
+  #       - especialidad
+  #     summary: Mustra todos las especialidades de los voluntarios
+  #     description: Devulve la lista especialidad de todos los voluntarios
+  #     operationId: getAllEspVoll
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/VoluntarioList'
+  #       '404':
+  #         description: Especialidad not found
+  #         content: {}
+
+  # '/especialidades/{vollById}':
+  #   put:
+  #     tags:
+  #       - especialidad
+  #     summary: Actualizar la especialidad de uno determinado voluntario si existe en la BD.
+  #     operationId: updateEspVoll
+  #     parameters:
+  #       -- rever el para mentro de id_voll por actualizar.
+  #       - $ref: '#/components/parameters/volunIdPath'
+  #     requestBody:
+  #       description: Requiere el Id del Voluntario para actualizar.
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/Voluntario'
+  #       required: true
+  #     x-codegen-request-body-name: body
+  #     responses:
+  #       '204':
+  #         description: Successful operation
+  #         content: {}
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: User not found
+  #         content: {}
+  #   delete:
+  #     tags:
+  #       - especialidad
+  #     summary: Borrar datos de especialidad de un terminado Voluntario. 
+  #     operationId: deleteEspVoll
+  #     parameters:
+  #       -- mirar el paramentro
+  #       - $ref: '#/components/parameters/volunIdPath'
+  #     responses:
+  #       '204':
+  #         description: Successful operation
+  #         content: {}
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: especialidad not found
+  #         content: {}
+
+  #   get:
+  #     tags:
+  #       - especialidad
+  #     summary: Buscar la especialidad del voluntario por ID
+  #     description: Devuelve los datos de especialidad de un determinado Voluntario 
+  #     operationId: getEspVollById
+  #     parameters:
+  #     -- rever el shema de retorno 
+  #       - $ref: '#/components/parameters/volunIdPath'
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/VoluntarioLis'
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: especialidad not found
+  #         content: {}
+
+  # -- ESTANCIA 
+
+  # /estancias:
+  #   post:
+  #     tags:
+  #       - estancia
+  #     summary: Crear periodo de estancia de Voluntarios
+  #     operationId: createEstanciaVoll
+  #     requestBody:
+  #       description: Crear perido de estancia de Voluntarios.
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/creavoll'
+  #       required: true
+  #     x-codegen-request-body-name: body
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/ResponseBody'
+  #   get:
+  #     tags:
+  #       - estancia
+  #     summary: Mustra los periodo de estancia de todos los voluntarios
+  #     description: Devulve la lista Estancia de todos los voluntarios
+  #     operationId: getAllEstanciaVoll
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/VoluntarioList'
+  #       '404':
+  #         description: estancia not found
+  #         content: {}
+
+  # '/estancias/{vollById}':
+  #   put:
+  #     tags:
+  #       - estancia
+  #     summary: Actualizar perido de estancia de un determinado voluntario si existe en la BD.
+  #     operationId: updateEstanciaVoll
+  #     parameters:
+  #       -- rever el para mentro de id_voll por actualizar.
+  #       - $ref: '#/components/parameters/volunIdPath'
+  #     requestBody:
+  #       description: Requiere el Id del Voluntario para actualizar.
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/Voluntario'
+  #       required: true
+  #     x-codegen-request-body-name: body
+  #     responses:
+  #       '204':
+  #         description: Successful operation
+  #         content: {}
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: estancia not found
+  #         content: {}
+
+  #   delete:
+  #     tags:
+  #       - estancia
+  #     summary: Borrar datos de periodo de estancia de un terminado Voluntario. 
+  #     operationId: deleteEspVoll
+  #     parameters:
+  #       -- mirar el paramentro
+  #       - $ref: '#/components/parameters/volunIdPath'
+  #     responses:
+  #       '204':
+  #         description: Successful operation
+  #         content: {}
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: User not found
+  #         content: {}
+
+  #   get:
+  #     tags:
+  #       - estancia
+  #     summary: Buscar el periodo de estancia del voluntario por ID
+  #     description: Devuelve los datos de periodo de estancia de un determinado Voluntario 
+  #     operationId: getEstanciaVollById
+  #     parameters:
+  #     -- rever el shema de retorno 
+  #       - $ref: '#/components/parameters/volunIdPath'
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/VoluntarioLis'
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: estancia not found
+  #         content: {}
+
+    
+  #   -- SECION_ESTANCIA 
+  #   /seciones:
+  #   post:
+  #     tags:
+  #       - secion
+  #     summary: Crear secion de Voluntarios
+  #     operationId: createSecVoll
+  #     requestBody:
+  #       description: Crear la Secion de Voluntarios.
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/creavoll'
+  #       required: true
+  #     x-codegen-request-body-name: body
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/ResponseBody'
+  #   get:
+  #     tags:
+  #       - secion
+  #     summary: Mustra todos las Seciones de los voluntarios
+  #     description: Devulve la lista especialidad de todos los voluntarios
+  #     operationId: getAllSecVoll
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/VoluntarioList'
+  #       '404':
+  #         description: secion not found
+  #         content: {}
+
+  # '/seciones/{vollById}':
+  #   put:
+  #     tags:
+  #       - secion
+  #     summary: Actualizar la Secion de uno determinado voluntario si existe en la BD.
+  #     operationId: updateSecVoll
+  #     parameters:
+  #       -- rever el para mentro de id_voll por actualizar.
+  #       - $ref: '#/components/parameters/volunIdPath'
+  #     requestBody:
+  #       description: Requiere el Id del Voluntario para actualizar.
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/Voluntario'
+  #       required: true
+  #     x-codegen-request-body-name: body
+  #     responses:
+  #       '204':
+  #         description: Successful operation
+  #         content: {}
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: User not found
+  #         content: {}
+
+  #   delete:
+  #     tags:
+  #       - secion
+  #     summary: Borrar datos de secion de un terminado Voluntario. 
+  #     operationId: deleteSecVoll
+  #     parameters:
+  #       -- mirar el paramentro
+  #       - $ref: '#/components/parameters/volunIdPath'
+  #     responses:
+  #       '204':
+  #         description: Successful operation
+  #         content: {}
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: Secion not found
+  #         content: {}
+
+  #   get:
+  #     tags:
+  #       - secion
+  #     summary: Buscar las seciones del voluntario por ID
+  #     description: Devuelve los datos de especialidad de un determinado Voluntario 
+  #     operationId: getAllSecVollById
+  #     parameters:
+  #     -- rever el shema de retorno 
+  #       - $ref: '#/components/parameters/volunIdPath'
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/VoluntarioLis'
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: Voluntario not found
+  #        # content: {} 
+
+  # /passwords:
+  #   put:
+  #     tags:
+  #       - password
+  #     summary: Create and Update Password
+  #     description: This endpoint has two functions, it creates and updates the password.
+  #     operationId: updatePassword
+  #     security: []
+  #     parameters:
+  #       - $ref: '#/components/parameters/userIdPath'
+  #     requestBody:
+  #       description: User object that needs to be added to the store
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/ForgotPassword'
+  #     responses:
+  #       '204':
+  #         description: Successful operation
+  #         content: {}
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: User not found
+  #         content: {}
+  #     x-codegen-request-body-name: body
+
+  # '/passwords/reset':
+  #   put:
+  #     tags:
+  #       - password
+  #     summary: Set Password after registre into system
+  #     operationId: setPassword
+  #     security: []
+  #     requestBody:
+  #       description: User object that needs to be added to the store
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/SetPassword'
+  #     responses:
+  #       '204':
+  #         description: Successful operation
+  #         content: {}
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: User not found
+  #         content: {}
+  #     x-codegen-request-body-name: body
+
+
+  # /sessions:
+  #   post:
+  #     tags:
+  #       - session
+  #     summary: Logs User into the system
+  #     operationId: login
+  #     security: [] # validate data login
+  #     parameters:
+  #       - $ref: '#/components/parameters/email'
+  #       - $ref: '#/components/parameters/password'
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               # habrá que retonar un token co la info de l usuario
+  #               $ref: '#/components/schemas/LoginOk'
+  #       '400':
+  #         description: Invalid username/password supplied
+  #         content: {}
+
+  # '/sessions/':
+  #   get:
+  #     tags:
+  #       - session
+  #     summary: Get session state
+  #     operationId: statusSession
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               # habrá que retonar un token co la info de l usuario
+  #               $ref: '#/components/schemas/StatusUser'
+  #       '400':
+  #         description: Invalid ID
+  #       '404':
+  #         description: Session not found
+  #         content: {}
+
+  #   put:
+  #     tags:
+  #       - session
+  #     summary: Update State session
+  #     operationId: updateSession
+  #     parameters:
+  #       - $ref: '#/components/parameters/volunIdQueryR'
+  #     responses:
+  #       '200':
+  #         description: Successful operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               # habrá que retonar un token co la info de l usuario
+  #               $ref: '#/components/schemas/token'
+  #       '400':
+  #         description: Invalid ID supplied
+  #         content: {}
+  #       '404':
+  #         description: User not found
+  #         content: {}
+
+  #   delete:
+  #     tags:
+  #       - session
+  #     summary: Logout current logged in User session
+  #     operationId: logout
+  #     responses:
+  #       default:
+  #         description: successful operation
+  #         content: {}
+
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    volunIdPath:
+      in: path
+      name: volunId
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeUUID'
+        
+    vollIdPath:
+      in: path
+      name: vollId
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeUUID'
+        
+    volunIdQuery:
+      in: query
+      name: volunId
+      required: false
+      schema:
+        $ref: '#/components/schemas/typeUUID'
+
+    volunIdQueryR:
+      in: query
+      name: volunId
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeUUID'
+        
+    
+
+    offset:
+      in: query
+      name: offset
+      description: value offSet to search
+      required: false
+      schema:
+        $ref: '#/components/schemas/offset'
+
+    limit:
+      in: query
+      name: limit
+      description: value offSet to search
+      required: false
+      schema:
+        $ref: '#/components/schemas/limit'
+
+    sortBy:
+      in: query
+      name: sortBy
+      description: ''
+      required: false
+      schema:
+        $ref: '#/components/schemas/sortBy'
+
+
+    columnName:
+      in: query
+      name: columnName
+      description: ''
+      required: false
+      schema:
+        $ref: '#/components/schemas/typeString'
+
+    sessionId:
+      in: path
+      name: sessionId
+      description: The ID for session
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeUUID'
+
+    email:
+      in: query
+      name: email
+      description: The user email for login
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeString'
+
+    password:
+      in: query
+      name: password
+      description: The password for login
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeString'
+
+    
+    filterValue:
+      in: query
+      name: value
+      description:  Add text to filter in your search
+      required: false
+      schema:
+        type: array
+        additionalProperties: true
+        items:
+          $ref: '#/components/schemas/typeString'
+
+    formatFile:
+      in: query
+      name: formatFile
+      description: 'Download file data'
+      required: true
+      schema:
+        $ref: '#/components/schemas/formatFile'
+
+    token:
+      in: query
+      name: token
+      description: 'Token'
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeString'
+
+    dateFrom:
+      in: query
+      name: dateFrom
+      description: Begin date to filter
+      required: false
+      schema:
+        $ref: '#/components/schemas/typeDate'
+
+    dateTo:
+      in: query
+      name: dateTo
+      description: Final date to filter filter
+      required: false
+      schema:
+        $ref: '#/components/schemas/typeDate'
+
+  schemas:
+    # -- ID entities
+    typeUUID:
+      type: string
+      format: uuid
+
+
+    typeBool:
+      type: boolean
+      default: true
+
+    typeString:
+      type: string
+
+    typeDateTime:
+      type: string
+      format: date-time
+
+    typeDate:
+      type: string
+      format: date
+
+    typeInt:
+      type: integer
+      format: int64
+      default: 0
+
+    typeNumber:
+      type: number
+      example: 26.3
+
+    # -- data filter
+    offset:
+      type: integer
+      format: int64
+      default: 0
+
+    limit:
+      type: integer
+      format: int64
+      default: 50
+
+    sortBy:
+      type: string
+      enum:
+        - ASC
+        - DESC
+      default: ASC
+    formatFile:
+      type: string
+      enum:
+        - CSV
+      default: CSV
+     
+    ToFilterVoluntario:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          $ref: '#/components/schemas/typeString'
+        email:
+          $ref: '#/components/schemas/typeString'
+
+    Voluntario:
+      required:
+        - fechaNascimiento
+        - fechaEmisonPasaporte
+        - fechaCaducidadPasaporte
+        - numPasaporte
+        - nombre
+        - nacionalidad
+        - lugarNascimento
+        - residenciaActual
+        - profesion
+        - telefono 
+        - email 
+        - institotoRef
+        - tipoVoluntariado 
+      type: object
+      properties:
+        fechaNascimiento:
+          $ref: '#/components/schemas/typeDate'
+        fechaEmisonPasaporte:
+          $ref: '#/components/schemas/typeDate'
+        fechaCaducidadPasaporte:
+          $ref: '#/components/schemas/typeDate'
+        numPasaporte:
+          $ref: '#/components/schemas/typeString'
+        nombre:
+          $ref: '#/components/schemas/typeString'
+        nacionalidad:
+          $ref: '#/components/schemas/typeString'
+        lugarNascimento:
+          $ref: '#/components/schemas/typeString'
+        residenciaActual:
+          $ref: '#/components/schemas/typeString'
+        profesion:
+          $ref: '#/components/schemas/typeString'
+        telefono: 
+          $ref: '#/components/schemas/typeString'
+        email: 
+          $ref: '#/components/schemas/typeString'
+        institotoRef:
+          $ref: '#/components/schemas/typeString'
+        tipoVoluntariado: 
+          $ref: '#/components/schemas/typeString'
+
+    VoluntarioLis:
+      required:
+        - volunId
+        - supervisorId
+        - adminId
+        - totalApplication
+        - name
+      type: object
+      properties:
+        volunId:
+          $ref: '#/components/schemas/typeUUID'
+        supervisorId:
+          $ref: '#/components/schemas/typeUUID'
+        adminId:
+          $ref: '#/components/schemas/typeUUID'
+        totalApplication:
+          $ref: '#/components/schemas/typeInt'
+        name:
+          $ref: '#/components/schemas/typeString'
+
+
+    VoluntarioList:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Voluntario'
+            
+    CreateUser:
+      required:
+        - email
+        - name
+        - surnames
+      type: object
+      additionalProperties: false
+      properties:
+        volunId:
+          $ref: '#/components/schemas/typeUUID'
+        name:
+          $ref: '#/components/schemas/typeString'
+        surnames:
+          $ref: '#/components/schemas/typeString'
+        email:
+          $ref: '#/components/schemas/typeString'
+    User:
+      required:
+        - name
+        - email
+        - createdAt
+        - lastSee
+        - id
+        - totalDevice
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/typeUUID'
+        createdAt:
+          $ref: '#/components/schemas/typeDateTime'
+        lastSee:
+          $ref: '#/components/schemas/typeDateTime'
+        name:
+          $ref: '#/components/schemas/typeString'
+        email:
+          $ref: '#/components/schemas/typeString'
+        totalDevice:
+          $ref: '#/components/schemas/typeInt'
+
+    ResponseBody:
+      required:
+        - id
+        - createdAt
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/typeUUID'
+        createdAt:
+          $ref: '#/components/schemas/typeString'
+
+    UserList:
+      required:
+        - id
+        - lastSeen
+        - email
+        - name
+        - surname
+        - createdAt
+        - role
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/typeUUID'
+        createdAt:
+          $ref: '#/components/schemas/typeDateTime'
+        lastSeen:
+          $ref: '#/components/schemas/typeDateTime'
+        name:
+          $ref: '#/components/schemas/typeString'
+        surname:
+          $ref: '#/components/schemas/typeString'
+        email:
+          $ref: '#/components/schemas/typeString'
+        role:
+          $ref: '#/components/schemas/typeString'
+
+    
+    LoginOk:
+      required:
+        - token
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          $ref: '#/components/schemas/typeString'
+    SetPassword:
+      type: object
+      required:
+        - email
+      additionalProperties: false
+      properties:
+        email:
+          $ref: '#/components/schemas/typeString'
+
+    ForgotPassword:
+      type: object
+      additionalProperties: false
+      properties:
+        newPassword:
+          $ref: '#/components/schemas/typeString'
+      oneOf:
+        - $ref: '#/components/schemas/token'
+        - $ref: '#/components/schemas/oldPassword'
+
+    token:
+      type: object
+      required:
+        - token
+      additionalProperties: false
+      properties:
+        token:
+          $ref: '#/components/schemas/typeString'
+
+    oldPassword:
+      type: object
+      required:
+        - oldPassword
+      additionalProperties: false
+      properties:
+        oldPassword:
+          $ref: '#/components/schemas/typeString'
+    StatusUser:
+      type: object
+      additionalProperties: false
+      required:
+        - token
+        - status
+      properties:
+        token:
+          $ref: '#/components/schemas/typeString'
+        status:
+          $ref: '#/components/schemas/typeBool'
+
+    
+
+

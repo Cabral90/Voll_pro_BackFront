@@ -1,0 +1,9 @@
+Buenas noches 
+
+En este fichero se guardara todas las evoluciones ocorriente en dicho proyecto. 
+
+El el pasado dia 25-07-2022 se añadio en el GIT la primera vercione del API entre ottros recuros. 
+
+Seguiremos adelante con el Desarrollo. 
+
+Att: Cabralzay 

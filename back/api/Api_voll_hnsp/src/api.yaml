@@ -1,0 +1,1123 @@
+openapi: '3.0.2'
+info:
+  title: CRUD voll HNSP - Cubal
+  description: Operacion CRUD 
+  version: '1.0'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: cabralzay@gmail.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+externalDocs:
+  description: Find out more about Swagger OpenApi
+  url: 'http://swagger.io'
+servers:
+  - url: http://localhost:8080/v1
+  - url: https://localhost:8080/v1
+
+tags:
+  - name: Voluntario 
+    description: CRUD voluntario
+  - name: Residencia
+    description: CRUD redidencia
+  - name: Especialidad
+    description: CRUD Especialidad
+  - name: Periodo de Estancia 
+    description: CRUD periodo de Estancia
+  - name: Seccion de estancia 
+    description: Seccion de Estancia
+  - name: Listado
+
+#security:
+ # - bearerAuth: []
+paths:
+  /voluntarios:
+    post:
+      tags:
+        - voluntario
+      summary: Crear Voluntario
+      operationId: createvoll
+      requestBody:
+        description: Crear voluntario y añadir en la DB de registro.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Voluntario'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '200':
+          description: successful operation
+          content: 
+             application/json:
+              schema: 
+                $ref: '#/components/schemas/ResponseBody'
+    get:
+      tags:
+        - voluntario
+      summary: Mustra todos los voluntarios
+      description: Devulve la lista de todos los voluntarios
+      operationId: getAllVoll
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoluntarioList'
+        '404':
+          description: Voluntario not found
+          content: {}
+  '/voluntarios/{vollId}':
+    put:
+      tags:
+        - voluntario
+      summary: Actualizar los datos del Voluntarios si existe en la BD.
+      operationId: updateVoll
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      requestBody:
+        description: Requiere el Id del Voluntario para actualizar.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Voluntario'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+    delete:
+      tags:
+        - voluntario
+      summary: Borrar un determinano voluntario  por id en la BD. 
+      operationId: deleteVoll
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: voluntario not found
+          content: {}
+
+    get:
+      tags:
+        - voluntario
+      summary: Buscar el voluntario por ID
+      description: Devuelve un determinado Voluntario 
+      operationId: getVollById
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoluntarioLis'
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: Voluntario not found
+          content: {}
+
+  /residencias:
+    post: 
+      tags:
+        - residencia 
+      summary: Crear residencia 
+      operationId: createResidencia
+      requestBody: 
+        description: Crear residencia de los voluntarios 
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Residencia'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBody'
+    get: 
+      tags:
+        - residencia
+      summary: Listar Resindencia 
+      description: Devuelve la lista de Residencia de todos los voluntarios
+      operationId: getAllResindeciaVoll
+      parameters:
+        - $ref: '#/components/parameters/vollIdQuery'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResidenciaLista'
+        '404':
+          description: Voluntario not found
+          content: {} 
+  '/residencia/{vollId}':
+    put:
+      tags:
+        - residencia 
+      summary: Actualizar una determinada residencia por ID 
+      operationId: updateResidencia
+      parameters:
+         - $ref: '#/components/parameters/vollIdPath'
+      requestBody:
+        description: Requiere el Id del Voluntario para actualizar.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Residencia'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {} 
+    delete: 
+      tags:
+        - residencia 
+      summary: Borrar una determinada residencia por ID 
+      operationId: deleteResidencia
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: voluntario not found
+          content: {}
+    get: 
+      tags:
+        - residencia 
+      summary: Buscar una residencia por ID 
+      description: Devuleve una determinada residencia
+      operationId: findResidenciaById 
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Residencia'
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: Voluntario not found
+          content: {}
+  /Especialidad:
+    post: 
+      tags:
+        - especialidad
+      summary: Crear Especialidad de los voluntarios
+      operationId: createEspecialidad
+      requestBody: 
+        description: Crear especialidad 
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Especialidad'
+        required: true
+      x-codegen-request-body-name: body 
+      responses:
+        '200': 
+          description: Successful Operacion 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBody' 
+
+    get: 
+      tags:
+        - especialidad
+      summary: Mostrar todas las Especialidades 
+      operationId: getAllEspecialidad
+      description: Devuelve la lista de todas las Especialidades
+      parameters:
+        - $ref: '#/components/parameters/vollIdQuery'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EspecialidadList'
+        '404':
+          description: Especialidad not found
+          content: {}
+  '/especialidades/{vollId}': 
+    put: 
+      tags:
+        - especialidad
+      summary: Actualizar una determinada Especialidad
+      operationId: updateEspecialidad
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      requestBody:
+        description: Requiere el Id del Voluntario para actualizar.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Especialidad'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+    
+    delete:
+      tags:
+        - especialidad
+      summary: Borrar una determinada Especialidad
+      operationId: deleteEspecialdiad
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: voluntario not found
+          content: {}
+
+    get:
+      tags:
+        - especialidad
+      summary: Buscar una determinada Especialidad por ID
+      operationId: findEspecailidadById
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Especialidad'
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: Especialidad not found
+          content: {}
+  
+  /periodos:
+    post:
+      tags:
+        - periodo
+      summary: Crear periodo de Estancia 
+      operationId: createPeriodoVoll
+      requestBody: 
+        description: Crear perodo de estancia de cada Voluntario
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/Periodo' 
+        required: false
+      x-codegen-request-body-name: body
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBody'
+    get:
+      tags:
+        - periodo 
+      summary: Mustrar todos los periodo de Estancia
+      description: Devuelve la lista de periodo de estancia 
+      operationId: getAllPeriodo
+      parameters:
+        - $ref: '#/components/parameters/vollIdQuery'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeriodoList'
+        '404':
+          description: List of Peridod not found
+          content: {}
+
+  '/periodo/{vollId}':
+    put: 
+      tags:
+        - periodo
+      summary: Actualizar un determinado perido 
+      operationId: updatePeriodo
+      parameters:
+         - $ref: '#/components/parameters/vollIdPath'
+      requestBody:
+        description: Requiere el Id del Voluntario para actualizar.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Periodo'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+
+    delete: 
+      tags:
+        - periodo
+      summary: Borrar un determinado perido
+      operationId: deteletePeriodo
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: voluntario not found
+          content: {}
+    
+    get: 
+      tags:
+        - periodo
+      summary: Buscar un determinado periodo por ID 
+      description: Devuelve un determinado periodo de estancia por ID 
+      operationId: getPerdiodoById 
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Periodo'
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: Voluntario not found
+          content: {}
+  
+  /Seccion: 
+    post:
+      tags:
+        - seccion 
+      summary: Crear Seccion de Voluntariado
+      description: Crear una determinada Seccion 
+      operationId: createSeccion 
+      requestBody:
+        description: Crear una determinada Seccion. 
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Seccion'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBody'
+    get: 
+      tags:
+        - seccion 
+      summary: Mustra la Lista de Secciones 
+      description: Devuelve la lista de Secciones de voluntariado. 
+      operationId: getAllSeccion
+      parameters:
+        - $ref: '#/components/parameters/vollIdQuery'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeccionList'
+        '404':
+          description: Voluntario not found
+          content: {}
+
+  '/seciones/{vollId}':
+    put: 
+      tags:
+        - seccion
+      summary: Actualizar una determinada Seccion
+      operationId: updateSeccion
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      requestBody:
+        description: Requiere el Id del Voluntario para actualizar.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Seccion'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+
+    delete: 
+      tags:
+        - seccion
+      summary: Borrar una determinada Seccion 
+      operationId: deleteSeccion 
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: not found data
+          content: {}
+    get: 
+      tags:
+        - seccion 
+      summary: Buscar una  Seccion por ID
+      description: Devulve una terminada Seccion por ID 
+      operationId: getSeccionById 
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seccion'
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: Voluntario not found
+          content: {}
+  /listado:
+    get: 
+      tags:
+        - listado 
+      summary: Ver todos los datos de todos los Voluntario. 
+      description: Muestra todos los datos de todos los voluntario.
+      operationId: getDataAllVoll
+      parameters:
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllDataVollList'
+        '404':
+          description: Voluntario not found
+          content: {}
+  '/listado/{vollId}':
+    get: 
+      tags:
+        - listado 
+      summary: Ver todos los datos de un determinado Voluntario. 
+      description: Muestra todos los datos de uno determinado voluntario.
+      operationId: getDataOnlyVoll
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllDataVoll'
+        '404':
+          description: Voluntario not found
+          content: {}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:      
+    vollIdPath:
+      in: path
+      name: vollId
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeUUID'
+    
+    vollIdQuery:
+      in: query
+      name: vollId
+      required: false
+      schema:
+        $ref: '#/components/schemas/typeUUID'
+
+    volunIdQueryTrue:
+      in: query
+      name: vollId
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeUUID'   
+    
+    offset:
+      in: query
+      name: offset
+      description: value offSet to search
+      required: false
+      schema:
+        $ref: '#/components/schemas/offset'
+
+    limit:
+      in: query
+      name: limit
+      description: value offSet to search
+      required: false
+      schema:
+        $ref: '#/components/schemas/limit'
+
+    sortBy:
+      in: query
+      name: sortBy
+      description: ''
+      required: false
+      schema:
+        $ref: '#/components/schemas/sortBy'
+
+    columnName:
+      in: query
+      name: columnName
+      description: ''
+      required: false
+      schema:
+        $ref: '#/components/schemas/typeString'
+
+    sessionId:
+      in: path
+      name: sessionId
+      description: The ID for session
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeUUID'
+
+    email:
+      in: query
+      name: email
+      description: The user email for login
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeString'
+
+    password:
+      in: query
+      name: password
+      description: The password for login
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeString'   
+    filterValue:
+      in: query
+      name: value
+      description:  Add text to filter in your search
+      required: false
+      schema:
+        type: array
+        additionalProperties: true
+        items:
+          $ref: '#/components/schemas/typeString'
+
+    formatFile:
+      in: query
+      name: formatFile
+      description: 'Download file data'
+      required: true
+      schema:
+        $ref: '#/components/schemas/formatFile'
+
+    token:
+      in: query
+      name: token
+      description: 'Token'
+      required: true
+      schema:
+        $ref: '#/components/schemas/typeString'
+
+    dateFrom:
+      in: query
+      name: dateFrom
+      description: Begin date to filter
+      required: false
+      schema:
+        $ref: '#/components/schemas/typeDate'
+
+    dateTo:
+      in: query
+      name: dateTo
+      description: Final date to filter filter
+      required: false
+      schema:
+        $ref: '#/components/schemas/typeDate'
+  
+  schemas:
+    #FILTROS 
+    offset:
+      type: integer
+      format: int64
+      default: 0
+
+    limit:
+      type: integer
+      format: int64
+      default: 50
+
+    sortBy:
+      type: string
+      enum:
+        - ASC
+        - DESC
+      default: ASC
+    formatFile:
+      type: string
+      enum:
+        - CSV
+      default: CSV
+
+    #VARIABLES
+    typeUUID:
+      type: string
+      format: uuid
+    
+    typeBool:
+      type: boolean
+      default: true
+
+    typeString:
+      type: string
+
+    typeDateTime:
+      type: string
+      format: date-time
+
+    typeDate:
+      type: string
+      format: date
+
+    typeInt:
+      type: integer
+      format: int64
+      default: 0
+
+    typeNumber:
+      type: number
+      example: 26.3
+
+    # RESPONSESBODY
+    ResponseBody:
+      required:
+        - id
+        - createdAt
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          $ref: '#/components/schemas/typeUUID'
+        createdAt:
+          $ref: '#/components/schemas/typeDate'
+
+    #OBJECTOS
+    Voluntario:
+      required:
+        - fechaNascimiento
+        - fechaEmisonPasaporte
+        - fechaCaducidadPasaporte
+        - numPasaporte
+        - nombre
+        - nacionalidad
+        - lugarNascimento
+        - residenciaActual
+        - profesion
+        - telefono 
+        - email 
+        - institotoRef
+        - tipoVoluntariado 
+      additionalProperties: false
+      type: object
+      properties:
+        fechaNascimiento:
+          $ref: '#/components/schemas/typeDate'
+        fechaEmisonPasaporte:
+          $ref: '#/components/schemas/typeDate'
+        fechaCaducidadPasaporte:
+          $ref: '#/components/schemas/typeDate'
+        numPasaporte:
+          $ref: '#/components/schemas/typeString'
+        nombre:
+          $ref: '#/components/schemas/typeString'
+        nacionalidad:
+          $ref: '#/components/schemas/typeString'
+        lugarNascimento:
+          $ref: '#/components/schemas/typeString'
+        residenciaActual:
+          $ref: '#/components/schemas/typeString'
+        profesion:
+          $ref: '#/components/schemas/typeString'
+        telefono: 
+          $ref: '#/components/schemas/typeString'
+        email: 
+          $ref: '#/components/schemas/typeString'
+        institotoRef:
+          $ref: '#/components/schemas/typeString'
+        tipoVoluntariado: 
+          $ref: '#/components/schemas/typeString'
+    VoluntarioList:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Voluntario'
+    VoluntarioLis:
+      required:
+        - volunId
+        - supervisorId
+        - adminId
+        - totalApplication
+        - name
+      type: object
+      properties:
+        volunId:
+          $ref: '#/components/schemas/typeUUID'
+        supervisorId:
+          $ref: '#/components/schemas/typeUUID'
+        adminId:
+          $ref: '#/components/schemas/typeUUID'
+        totalApplication:
+          $ref: '#/components/schemas/typeInt'
+        name:
+          $ref: '#/components/schemas/typeString'
+    Residencia:
+      additionalProperties: false 
+      required:
+        - idVoll
+        - calle
+        - numEdificio
+        - puerta
+        - provincia
+        - municipio
+      type: object
+      properties:
+        idVoll:
+          $ref: '#/components/schemas/typeUUID'
+        calle: 
+          $ref: '#/components/schemas/typeString'
+        numEdificio: 
+          $ref: '#/components/schemas/typeInt' 
+        puerta: 
+          $ref: '#/components/schemas/typeInt'
+        provincia: 
+          $ref: '#/components/schemas/typeString'
+        municipio: 
+          $ref: '#/components/schemas/typeString'
+    ResidenciaLista: 
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Residencia'
+    Especialidad: 
+      required:
+        - idVoll
+        - nombre
+      additionalProperties: false
+      type: object
+      properties:
+        idVoll: 
+          $ref: '#/components/schemas/typeUUID'
+        nombre:
+          $ref: '#/components/schemas/typeString'
+    EspecialidadList:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Especialidad'
+    Periodo: 
+      type: object
+      required:
+        - vollId
+        - fecha_inicio
+        - fecha_fin
+      additionalProperties: false
+      properties:
+        vollId:
+          $ref: '#/components/schemas/typeUUID'
+        fecha_inicio:
+          $ref: '#/components/schemas/typeDate'
+        fecha_fin: 
+          $ref: '#/components/schemas/typeDate'
+    PeriodoList:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Periodo'
+    Seccion: 
+      type: object
+      required:
+        - vollId
+        - fecha_ini
+        - fecha_fin
+        - nombre
+        - responsable
+      additionalProperties: false
+      properties:
+        vollId:
+          $ref: '#/components/schemas/typeUUID'
+        fecha_inicio:
+          $ref: '#/components/schemas/typeDate'
+        fecha_fin: 
+          $ref: '#/components/schemas/typeDate'
+        nombre: 
+          $ref: '#/components/schemas/typeString'
+        responsable: 
+          $ref: '#/components/schemas/typeString'
+    SeccionList:
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Seccion'
+    
+    AllDataVoll: 
+      type: object
+      required:
+        - vollId
+        - voluntario
+        - residencia 
+        - especialidad
+        - periodo 
+        - seccion
+      additionalProperties: false 
+      properties:
+        vollId: 
+          $ref: '#/components/schemas/typeUUID'
+        voluntario:
+          required:
+            - fechaNascimiento
+            - fechaEmisonPasaporte
+            - fechaCaducidadPasaporte
+            - numPasaporte
+            - nombre
+            - nacionalidad
+            - lugarNascimento
+            - residenciaActual
+            - profesion
+            - telefono 
+            - email 
+            - institotoRef
+            - tipoVoluntariado 
+          additionalProperties: false
+          type: object
+          properties:
+            fechaNascimiento:
+              $ref: '#/components/schemas/typeDate'
+            fechaEmisonPasaporte:
+              $ref: '#/components/schemas/typeDate'
+            fechaCaducidadPasaporte:
+              $ref: '#/components/schemas/typeDate'
+            numPasaporte:
+              $ref: '#/components/schemas/typeString'
+            nombre:
+              $ref: '#/components/schemas/typeString'
+            nacionalidad:
+              $ref: '#/components/schemas/typeString'
+            lugarNascimento:
+              $ref: '#/components/schemas/typeString'
+            residenciaActual:
+              $ref: '#/components/schemas/typeString'
+            profesion:
+              $ref: '#/components/schemas/typeString'
+            telefono: 
+              $ref: '#/components/schemas/typeString'
+            email: 
+              $ref: '#/components/schemas/typeString'
+            institotoRef:
+              $ref: '#/components/schemas/typeString'
+            tipoVoluntariado: 
+              $ref: '#/components/schemas/typeString'
+              
+            redidencia: 
+              additionalProperties: false 
+              required:
+                - calle
+                - numEdificio
+                - puerta
+                - provincia
+                - municipio
+              type: object
+              properties:
+                calle: 
+                  $ref: '#/components/schemas/typeString'
+                numEdificio: 
+                  $ref: '#/components/schemas/typeInt' 
+                puerta: 
+                  $ref: '#/components/schemas/typeInt'
+                provincia: 
+                  $ref: '#/components/schemas/typeString'
+                municipio: 
+                  $ref: '#/components/schemas/typeString'
+                
+                especialidad: 
+                  required:
+                    - nombre
+                  additionalProperties: false
+                  type: object
+                  properties:
+                    nombre:
+                      $ref: '#/components/schemas/typeString'
+                
+                perido: 
+                  type: object
+                  required:
+                    - fecha_inicio
+                    - fecha_fin
+                  additionalProperties: false
+                  properties:
+                    fecha_inicio:
+                      $ref: '#/components/schemas/typeDate'
+                    fecha_fin: 
+                      $ref: '#/components/schemas/typeDate'
+
+                seccion: 
+                  type: object
+                  required:
+                    - fecha_ini
+                    - fecha_fin
+                    - nombre
+                    - responsable
+                  additionalProperties: false
+                  properties:
+                    fecha_inicio:
+                      $ref: '#/components/schemas/typeDate'
+                    fecha_fin: 
+                      $ref: '#/components/schemas/typeDate'
+                    nombre: 
+                      $ref: '#/components/schemas/typeString'
+                    responsable: 
+                      $ref: '#/components/schemas/typeString'
+      
+    AllDataVollList: 
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllDataVoll'
+
+      
+
+    
