@@ -1745,6 +1745,7 @@ components:
           $ref: '#/components/schemas/typeNumber'
         currentValue:
           $ref: '#/components/schemas/typeNumber'
+    
     ToFilterDevice:
       type: object
       additionalProperties: false

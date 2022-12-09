@@ -464,6 +464,50 @@ paths:
           description: Voluntario not found
           content: {}
   
+  /pago:
+    post:
+      tags:
+        - pago
+      summary: Pago de estancia de voluntarios
+      description: Pago de estancia de voluntarios
+      operationId: createPayVoll
+      requestBody:
+        description: Datos de pago de estancia de Voluntarios
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pago'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBody'
+    get: 
+      tags:
+        - pago
+      summary: Mustra la lista de pago de Estancia
+      description: Mustra la lista de pago de Estancia
+      operationId: getAllPay
+      parameters:
+        - $ref: '#/components/parameters/vollIdQuery'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
+        - $ref: '#/components/parameters/sortBy'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagoList'
+        '404':
+          description: Voluntario not found
+          content: {}
+
   /Seccion: 
     post:
       tags:
@@ -504,6 +548,69 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SeccionList'
+        '404':
+          description: Voluntario not found
+          content: {}
+  '/pago/{vollId}':
+    put: 
+      tags:
+        - pago
+      summary: Actualizar un registro de pagod e estancia 
+      operationId: updatePay
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      requestBody:
+        description: Requiere el Id del Voluntario para actualizar.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PagoUpdate'
+        required: true
+      x-codegen-request-body-name: body
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+    delete: 
+      tags:
+        - pago
+      summary: Borrar un registro de Pago de estancia 
+      operationId: deletePay 
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: not found data
+          content: {}
+    get: 
+      tags:
+        - pago
+      summary: Buscar Pago por ID 
+      operationId: getPayById 
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pago'
+        '400':
+          description: Invalid ID supplied
+          content: {}
         '404':
           description: Voluntario not found
           content: {}
@@ -697,6 +804,8 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/typeString'   
+
+    # FILTROS DE BUSQUEDA Y ACTUALIZACION
     filterValue:
       in: query
       name: value
@@ -707,6 +816,30 @@ components:
         additionalProperties: true
         items:
           $ref: '#/components/schemas/typeString'
+    
+    filterColumnPago:
+      in: query
+      name: filter
+      description:  Add values Pago
+      required: false
+      schema:
+        $ref: '#/components/schemas/ToFilterPago'
+
+    filterColumnVoll:
+      in: query
+      name: filter
+      description:  Add values Voluntario
+      required: false
+      schema:
+        $ref: '#/components/schemas/ToFilterVoll'
+    
+    filterColumnEspecialidad:
+      in: query
+      name: filter
+      description:  Add values Especialidad
+      required: false
+      schema: 
+        $ref: '#/components/schemas/ToFilterEspecialidad'
 
     formatFile:
       in: query
@@ -851,6 +984,39 @@ components:
           $ref: '#/components/schemas/typeString'
         tipoVoluntariado: 
           $ref: '#/components/schemas/typeString'
+
+
+    ToFilterVoll:
+      additionalProperties: false
+      type: object
+      properties:
+        fechaNascimiento:
+          $ref: '#/components/schemas/typeDate'
+        fechaEmisonPasaporte:
+          $ref: '#/components/schemas/typeDate'
+        fechaCaducidadPasaporte:
+          $ref: '#/components/schemas/typeDate'
+        numPasaporte:
+          $ref: '#/components/schemas/typeString'
+        nombre:
+          $ref: '#/components/schemas/typeString'
+        nacionalidad:
+          $ref: '#/components/schemas/typeString'
+        lugarNascimento:
+          $ref: '#/components/schemas/typeString'
+        residenciaActual:
+          $ref: '#/components/schemas/typeString'
+        profesion:
+          $ref: '#/components/schemas/typeString'
+        telefono: 
+          $ref: '#/components/schemas/typeString'
+        email: 
+          $ref: '#/components/schemas/typeString'
+        institotoRef:
+          $ref: '#/components/schemas/typeString'
+        tipoVoluntariado: 
+          $ref: '#/components/schemas/typeString'
+
     VoluntarioList:
       type: object
       properties:
@@ -913,6 +1079,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Residencia'
+    
     Especialidad: 
       required:
         - idVoll
@@ -924,6 +1091,15 @@ components:
           $ref: '#/components/schemas/typeUUID'
         nombre:
           $ref: '#/components/schemas/typeString'
+    ToFilterEspecialidad: 
+      additionalProperties: false
+      type: object
+      properties:
+        idVoll: 
+          $ref: '#/components/schemas/typeUUID'
+        nombre:
+          $ref: '#/components/schemas/typeString'
+
     EspecialidadList:
       type: object
       properties:
@@ -958,6 +1134,61 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Periodo'
+    
+    Pago: 
+      type: object
+      required:
+        - vollId
+        - valorSemanalPactado 
+        - valorDiaCorresp 
+        - valorPago
+      additionalProperties: false
+      properties: 
+        vollId:
+          $ref: '#/components/schemas/typeUUID'
+        valorSemanalPactado: 
+          $ref: '#/components/schemas/typeNumber'
+        valorDiaCorresp: 
+          $ref: '#/components/schemas/typeNumber'
+        valorPago: 
+          $ref: '#/components/schemas/typeNumber'
+
+    PagoUpdate: 
+      type: object
+      additionalProperties: false
+      properties: 
+        vollId:
+          $ref: '#/components/schemas/typeUUID'
+        valorSemanalPactado: 
+          $ref: '#/components/schemas/typeNumber'
+        valorDiaCorresp: 
+          $ref: '#/components/schemas/typeNumber'
+        valorPago: 
+          $ref: '#/components/schemas/typeNumber'
+    ToFilterPago: 
+      type: object
+      additionalProperties: false
+      properties: 
+        vollId:
+          $ref: '#/components/schemas/typeUUID'
+        valorSemanalPactado: 
+          $ref: '#/components/schemas/typeNumber'
+        valorDiaCorresp: 
+          $ref: '#/components/schemas/typeNumber'
+        valorPago: 
+          $ref: '#/components/schemas/typeNumber'
+      
+    PagoList: 
+      type: object
+      properties:
+        size:
+          type: integer
+          format: int64
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pago'
+        
     Seccion: 
       type: object
       required:
@@ -1077,7 +1308,7 @@ components:
                     nombre:
                       $ref: '#/components/schemas/typeString'
                 
-                perido: 
+                periodo: 
                   type: object
                   required:
                     - fecha_inicio

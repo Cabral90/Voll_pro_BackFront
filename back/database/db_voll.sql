@@ -62,15 +62,13 @@ INSERT INTO "public".prueba ( nombre, edad) VALUES (
 CREATE OR REPLACE FUNCTION public.gen_random_uuid()
  RETURNS uuid
  LANGUAGE plpgsql
-AS $function$
-begin
+    AS $function$
+    begin
 
-return (lpad(to_hex((extract(epoch from now()) / 60)::int % 65536), 4, '0') || substr(md5(random()::text ||random()::text), 5))::uuid;
+    return (lpad(to_hex((extract(epoch from now()) / 60)::int % 65536), 4, '0') || substr(md5(random()::text ||random()::text), 5))::uuid;
 
 end;
-
- $function$
-;
+$function$;
 
 -- Permissions
 
@@ -132,11 +130,11 @@ CREATE TABLE voll_all (
     id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    fecha_nascimiento DATE NOT NULL,
-    fecha_emision_pas DATE NOT NULL,
-    fecha_caducidad_pas	DATE NOT NULL,
-    fecha_ini_estancia DATE NOT NULL,
-    fecha_fin_estancia DATE NOT NULL,
+    fecha_nascimiento DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'), 
+    fecha_emision_pas DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
+    fecha_caducidad_pas	DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
+    fecha_ini_estancia DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
+    fecha_fin_estancia DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
     num_edif CHAR(6) NOT NULL,
     puerta CHAR(4) NOT NULL,
     nacionalidad TEXT NOT NULL, 
@@ -158,23 +156,34 @@ CREATE TABLE voll_all (
     especialidad TEXT NOT NULL, 
     -- PERIODO DE ESTANCIA 
     seccion_voll TEXT NOT NULL,
-    nombre_responsable TEXT NOT NULL
+    nombre_responsable TEXT NOT NULL,
+
+    -- pago estancia 
+    pago_semanal DECIMAL(10,2) NOT NULL,
+    pago_diario DECIMAL(10,2) NOT NULL,
+    valor_pagado DECIMAL(10,2) NOT NULL, 
+    enero TEXT NOT NULL DEFAULT 'my_genero'
+
 );
 
--- crear Indices de busquedas
-
-CREATE TABLE residencia(
-    id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    id_voll UUID,
+CREATE TABLE pago_voll (
+    id_voll UUID, 
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    calle TEXT NOT NULL, 
-    municipio TEXT NOT NULL,
-    provincia TEXT NOT NULL, 
-    num_edif CHAR(6) NOT NULL,
-    puerta CHAR(4) NOT NULL,
-
+    valor_pagado DECIMAL(10,2) NOT NULL, 
+    modo_pago TEXT NOT null,
+    FOREIGN KEY (id_voll) REFERENCES voll_all (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+
+CREATE TABLE estado_voll (
+    id_voll UUID, 
+    fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    estado TEXT NOT null,
+    FOREIGN KEY (id_voll) REFERENCES voll_all (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 
 CREATE TABLE especialidad_voll (
     id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),

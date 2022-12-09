@@ -75,7 +75,7 @@ public class MainVerticle extends AbstractVerticle {
     String ff = "src/api.yaml";
     Path pathToFile = Paths.get(ff);
 */
-    RouterBuilder.create(vertx, "src/api.yaml") // pathToFile.toString() / rep
+    RouterBuilder.create(vertx, "api.yaml") // pathToFile.toString() / rep
       .onSuccess(routerBuilder -> {
         System.out.println(" Init3 call function .....");
 
