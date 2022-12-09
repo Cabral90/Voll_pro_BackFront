@@ -1,6 +1,6 @@
 openapi: '3.0.2'
 info:
-  title: CRUD voll HNSP - Cubal
+  title: API Voluntarios HNSP - Cubal
   description: Operacion CRUD 
   version: '1.0'
   termsOfService: 'http://swagger.io/terms/'
@@ -11,7 +11,7 @@ info:
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
 externalDocs:
   description: Find out more about Swagger OpenApi
-  url: 'http://swagger.io'
+  url: 'https://editor.swagger.io/'
 servers:
   - url: http://localhost:8080/v1
   - url: https://localhost:8080/v1
@@ -25,9 +25,12 @@ tags:
     description: CRUD Especialidad
   - name: Periodo de Estancia 
     description: CRUD periodo de Estancia
-  - name: Seccion de estancia 
-    description: Seccion de Estancia
+  - name: Seccion
+    description: CRUD Seccion de Estancia
+  - name: Pago
+    description: CRUD Pago de estancia
   - name: Listado
+    description: Listado de voluntarios
 
 #security:
  # - bearerAuth: []
@@ -397,7 +400,7 @@ paths:
           description: List of Peridod not found
           content: {}
 
-  '/periodo/{vollId}':
+  '/periodos/{vollId}':
     put: 
       tags:
         - periodo
@@ -551,7 +554,7 @@ paths:
         '404':
           description: Voluntario not found
           content: {}
-  '/pago/{vollId}':
+  '/pagos/{vollId}':
     put: 
       tags:
         - pago
@@ -947,6 +950,7 @@ components:
         - fechaCaducidadPasaporte
         - numPasaporte
         - nombre
+        - apellidos
         - nacionalidad
         - lugarNascimento
         - residenciaActual
@@ -967,6 +971,8 @@ components:
         numPasaporte:
           $ref: '#/components/schemas/typeString'
         nombre:
+          $ref: '#/components/schemas/typeString'
+        apellidos: 
           $ref: '#/components/schemas/typeString'
         nacionalidad:
           $ref: '#/components/schemas/typeString'

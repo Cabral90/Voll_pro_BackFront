@@ -110,11 +110,14 @@ CREATE TABLE voll (
     id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    fecha_nascimiento DATE NOT NULL,
-    fecha_emision_pas DATE NOT NULL,
-    fecha_caducidad_pas	DATE NOT NULL,
+    fecha_nascimiento DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'), 
+    fecha_emision_pas DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
+    fecha_caducidad_pas	DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
+    fecha_ini_estancia DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
+    fecha_fin_estancia DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
     nacionalidad TEXT NOT NULL, 
     nombre	TEXT NOT NULL, 
+    apellidos TEXT NOT NULL, 
     lugar_nascimiento TEXT NOT NULL, 
     residencia_actual TEXT NOT NULL, 
     num_pasaporte TEXT NOT NULL, 
@@ -139,6 +142,7 @@ CREATE TABLE voll_all (
     puerta CHAR(4) NOT NULL,
     nacionalidad TEXT NOT NULL, 
     nombre	TEXT NOT NULL, 
+    apellidos TEXT NOT NULL, 
     lugar_nascimiento TEXT NOT NULL, 
     residencia_actual TEXT NOT NULL, 
     num_pasaporte TEXT NOT NULL, 
@@ -147,7 +151,8 @@ CREATE TABLE voll_all (
     tido_voluntariado TEXT NOT NULL, 
     telefono TEXT NOT NULL, 
     email TEXT NOT NULL, 
-    inst_referencia	 TEXT NOT NULL, 
+    inst_referencia	 TEXT NOT NULL 
+    /*
     -- RESEIDENCIA 
     calle TEXT NOT NULL, 
     municipio TEXT NOT NULL,
@@ -162,7 +167,8 @@ CREATE TABLE voll_all (
     pago_semanal DECIMAL(10,2) NOT NULL,
     pago_diario DECIMAL(10,2) NOT NULL,
     valor_pagado DECIMAL(10,2) NOT NULL, 
-    enero TEXT NOT NULL DEFAULT 'my_genero'
+    enero TEXT NOT NULL DEFAULT 'my_genero' 
+    */
 
 );
 
@@ -175,7 +181,6 @@ CREATE TABLE pago_voll (
     FOREIGN KEY (id_voll) REFERENCES voll_all (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
 CREATE TABLE estado_voll (
     id_voll UUID, 
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -183,7 +188,6 @@ CREATE TABLE estado_voll (
     estado TEXT NOT null,
     FOREIGN KEY (id_voll) REFERENCES voll_all (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
-
 
 CREATE TABLE especialidad_voll (
     id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
@@ -197,8 +201,7 @@ CREATE TABLE especialidad_voll (
 -- crear indoces de busqueda y filtros 
 
 CREATE TABLE periodo_estancia_voll(
-    id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    id_voll UUID
+    id_voll UUID,
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_inicio_voll DATE NOT NULL,
@@ -206,9 +209,16 @@ CREATE TABLE periodo_estancia_voll(
     FOREIGN KEY (id_voll) REFERENCES voll (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE hnsp_secion_voll(
+CREATE TABLE secion_hnsp (
     id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    id_voll UUID
+    fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    nombre TEXT NOT NULL
+);
+
+CREATE TABLE hnsp_secion_voll(
+    id UUID,
+    id_voll UUID,
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ini DATE NOT NULL,
@@ -216,6 +226,8 @@ CREATE TABLE hnsp_secion_voll(
     nombre TEXT NOT NULL,
     responsable TEXT NOT NULL,
 
+    PRIMARY KEY (id, id_voll),
+    FOREIGN KEY (id) REFERENCES secion_hnsp (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_voll) REFERENCES voll (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -223,7 +235,7 @@ CREATE TABLE hnsp_secion_voll(
 CREATE TABLE session_up(
     id UUID,
     voll_id UUID NOT NULL,
-   token TEXT NOT NULL,
+    token TEXT NOT NULL,
     PRIMARY KEY (id, user_id),
     FOREIGN KEY(voll_id) REFERENCES voll (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -241,7 +253,6 @@ CREATE TABLE admin_sys(
   id_voll UUID NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-
 );
 
 CREATE TABLE role(
@@ -249,14 +260,13 @@ CREATE TABLE role(
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     name TEXT  UNIQUE NOT NULL
-
 );
 
 CREATE TABLE permission(
     id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    name TEXT  UNIQUE NOT NULL;
+    name TEXT  UNIQUE NOT NULL
 );
 
 CREATE TABLE permission_role(  -- Relacion N a N / muchos a muchos
