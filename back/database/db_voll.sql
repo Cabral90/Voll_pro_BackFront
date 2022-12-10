@@ -83,7 +83,7 @@ GRANT ALL ON FUNCTION public.gen_random_uuid() TO postgres;
 CREATE ROLE rol_Voll;
 GRANT CONNECT ON DATABASE db_voll_hnsp TO rol_Voll;
 GRANT INSERT, SELECT ON ALL TABLES IN SCHEMA public TO rol_Voll;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT INSERT, SELECT ON TABLE TO rol_Voll; -- no lo es obligatorio
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT INSERT, SELECT ON TABLES TO rol_Voll; -- no lo es obligatorio
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE ON SEQUENCES TO rol_Voll;
 -- ALTER DEFAULT PRIVILEGES IN public GRANT INSERT ON TABLE TO rol_Voll; -- no hace falta
 
@@ -106,7 +106,7 @@ GRANT rol_Voll TO user_voll;
 
 -- CREATE TABLES 
 
-CREATE TABLE voll (
+CREATE TABLE "sch_voll".voluntario (
     id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -128,6 +128,21 @@ CREATE TABLE voll (
     email TEXT NOT NULL, 
     inst_referencia	 TEXT NOT NULL
 );
+CREATE TABLE "sch_voll".residencia_voll (
+    id_voll UUID  NOT NULL, 
+    fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    provincia TEXT NOT NULL, 
+    codigo_postal CHAR(5),
+    municipio TEXT NOT NULL, 
+    calle TEXT NOT NULL,
+    numero CHAR (5), 
+    puerta CHAR(2), 
+
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
+
+);
+
 
 CREATE TABLE voll_all (
     id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
@@ -172,51 +187,51 @@ CREATE TABLE voll_all (
 
 );
 
-CREATE TABLE pago_voll (
+CREATE TABLE "sch_voll".pago_voll (
     id_voll UUID, 
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     valor_pagado DECIMAL(10,2) NOT NULL, 
     modo_pago TEXT NOT null,
-    FOREIGN KEY (id_voll) REFERENCES voll_all (id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE estado_voll (
+CREATE TABLE "sch_voll".estado_voll (
     id_voll UUID, 
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     estado TEXT NOT null,
-    FOREIGN KEY (id_voll) REFERENCES voll_all (id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE especialidad_voll (
-    id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-    id_voll UUID
+CREATE TABLE "sch_voll".especialidad_voll (
+    id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+    id_voll UUID,
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     nombre TEXT NOT NULL,
-    FOREIGN KEY (id_voll) REFERENCES voll (id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- crear indoces de busqueda y filtros 
 
-CREATE TABLE periodo_estancia_voll(
+CREATE TABLE "sch_voll".periodo_estancia_voll(
     id_voll UUID,
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_inicio_voll DATE NOT NULL,
     fecha_fin_voll	DATE NOT NULL,
-    FOREIGN KEY (id_voll) REFERENCES voll (id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE secion_hnsp (
-    id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+CREATE TABLE "sch_voll".secion_hnsp (
+    id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     nombre TEXT NOT NULL
 );
 
-CREATE TABLE hnsp_secion_voll(
+CREATE TABLE "sch_voll".hnsp_secion_voll(
     id UUID,
     id_voll UUID,
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -227,70 +242,70 @@ CREATE TABLE hnsp_secion_voll(
     responsable TEXT NOT NULL,
 
     PRIMARY KEY (id, id_voll),
-    FOREIGN KEY (id) REFERENCES secion_hnsp (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_voll) REFERENCES voll (id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (id) REFERENCES "sch_voll".secion_hnsp (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CREATE ALL TABLE TECNICAL 
-CREATE TABLE session_up(
+CREATE TABLE "sch_voll".session_up(
     id UUID,
     voll_id UUID NOT NULL,
     token TEXT NOT NULL,
-    PRIMARY KEY (id, user_id),
-    FOREIGN KEY(voll_id) REFERENCES voll (id) ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY (id, voll_id),
+    FOREIGN KEY(voll_id) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE password(
+CREATE TABLE "sch_voll".password(
     id UUID PRIMARY KEY UNIQUE DEFAULT gen_random_uuid(),
     id_voll UUID NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     url TEXT NOT NULL,
-    FOREIGN KEY(id_voll) REFERENCES voll_all(id) ON DELETE RESTRICT ON UPDATE CASCADE
+    FOREIGN KEY(id_voll) REFERENCES "sch_voll".voluntario(id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
-CREATE TABLE admin_sys(
+CREATE TABLE "sch_voll".admin_sys(
   id UUID NOT NULL,
   id_voll UUID NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE role(
-    id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+CREATE TABLE "sch_voll".role(
+    id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     name TEXT  UNIQUE NOT NULL
 );
 
-CREATE TABLE permission(
-    id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+CREATE TABLE "sch_voll".permission(
+    id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     name TEXT  UNIQUE NOT NULL
 );
 
-CREATE TABLE permission_role(  -- Relacion N a N / muchos a muchos
+CREATE TABLE "sch_voll".permission_role(  -- Relacion N a N / muchos a muchos
     -- se ve los permisos que tiene un role y un role puede terner 
     -- mas a de un permiso. Y un permiso solo puede estar una vez 
     -- en cada role.
-    id PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(), -- el id aasignado al usisario para controlar los persmisos de aceso.
+    id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(), -- el id aasignado al usisario para controlar los persmisos de aceso.
     id_role UUID NOT NULL,  -- admin
     id_permission UUID NOT NULL, -- create, read, update, delete, 
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
  
-    FOREIGN KEY (id_role) REFERENCES role (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (id_permission) REFERENCES permission (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_role) REFERENCES "sch_voll".role (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_permission) REFERENCES "sch_voll".permission (id) ON DELETE CASCADE ON UPDATE CASCADE,
 
 );
 
-CREATE TABLE voll_permission(
-    id_voll NOT NULL,
+CREATE TABLE "sch_voll".voll_permission(
+    id_voll UUID NOT NULL,
     id_permision_role UUID NOT NULL,
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
 
-    FOREIGN KEY (id_voll) REFERENCES voll_all (id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
 
 );
 
@@ -335,3 +350,10 @@ FOREIGN KEY (permission_id) REFERENCES "app_chirpstack_user".permission(id) ON D
 
 */
 
+
+-- BOrrado de tablas 
+
+drop table sch_voll.especialidad_voll, 
+sch_voll.estado_voll, sch_voll.pago_voll,
+sch_voll.periodo_estancia_voll, sch_voll.secion_hnsp, 
+sch_voll.voll 
