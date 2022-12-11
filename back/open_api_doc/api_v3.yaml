@@ -31,9 +31,11 @@ tags:
     description: CRUD Pago de estancia
   - name: Listado
     description: Listado de voluntarios
-
-#security:
- # - bearerAuth: []
+  - name: documento
+    description: Documentos de voluntarios
+    
+security:
+  - bearerAuth: []
 paths:
   /voluntarios:
     post:
@@ -723,13 +725,128 @@ paths:
         '404':
           description: Voluntario not found
           content: {}
+  '/doc/{vollId}/upl':
+    put: 
+      tags:
+        - documento
+      summary: Subida de documentos (*) de voluntarios 
+      operationId: uploadDoc
+      parameters: 
+        - $ref: '#/components/parameters/vollIdPath' 
+        - $ref: '#/components/parameters/metadata'
+      requestBody: 
+        description: Subida de documentos (*) de voluntarios 
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200': 
+          description: Successful Operacion 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseBody' 
+  
+  '/doc/{vollId}/img':          
+    get:
+      tags: 
+        - documento 
+      summary: Devuelve una imagen
+      operationId: getImg 
+      parameters: 
+        - $ref: '#/components/parameters/vollIdPath' 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            image/png:
+              schema:
+                $ref: '#/components/schemas/Documento'
+        '404':
+          description: Voluntario not found
+          content: {}
+  '/doc/{vollId}/don':
+    get:
+      tags: 
+        - documento 
+      summary: Devuelve una imagen
+      operationId: donloadDoc 
+      parameters: 
+        - $ref: '#/components/parameters/vollIdPath' 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/pdf:
+              schema:
+                $ref: '#/components/schemas/Documento'
+        '404':
+          description: Voluntario not found
+          content: {}
+          
+  'passwords':
+    put:
+      tags:
+        - password
+      summary: Create y actualizar contraseña
+      description: Create y actualizar contraseña
+      operationId: updatePassword
+      security: []
+      parameters:
+        - $ref: '#/components/parameters/vollIdPath'
+      requestBody:
+        description: User object that needs to be added to the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPassword'
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+      x-codegen-request-body-name: body
+
+  '/passwords/reset':
+    put:
+      tags:
+        - password
+      summary: Recupera la Contraseña
+      operationId: setPassword
+      security: []
+      requestBody:
+        description: User object that needs to be added to the store
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetPassword'
+      responses:
+        '204':
+          description: Successful operation
+          content: {}
+        '400':
+          description: Invalid ID supplied
+          content: {}
+        '404':
+          description: User not found
+          content: {}
+      x-codegen-request-body-name: body
+  
 components:
+
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
+      
   parameters:      
     vollIdPath:
       in: path
@@ -806,7 +923,15 @@ components:
       description: The password for login
       required: true
       schema:
-        $ref: '#/components/schemas/typeString'   
+        $ref: '#/components/schemas/typeString' 
+        
+    metadata:
+      in: query
+      name: metadata
+      description: Datos adicional metadatos
+      required: false
+      schema:
+        $ref: '#/components/schemas/typeString'  
 
     # FILTROS DE BUSQUEDA Y ACTUALIZACION
     filterValue:
@@ -904,6 +1029,10 @@ components:
     typeUUID:
       type: string
       format: uuid
+      
+    typeFile:
+      type: string
+      format: binary
     
     typeBool:
       type: boolean
@@ -1357,6 +1486,61 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AllDataVoll'
+    Documento: 
+      type: object
+      additionalProperties: false
+      properties:
+        docName:
+          $ref: '#/components/schemas/typeString'
+        data: 
+          $ref: '#/components/schemas/typeString' 
+        meta: 
+          $ref: '#/components/schemas/typeFile'
+        extesion: 
+          $ref: '#/components/schemas/typeString'
+    
+    token:
+      type: object
+      required:
+        - token
+      additionalProperties: false
+      properties:
+        token:
+          $ref: '#/components/schemas/typeString'
+          
+    SetPassword:
+      type: object
+      required:
+        - email
+      additionalProperties: false
+      properties:
+        email:
+          $ref: '#/components/schemas/typeString'
+
+
+    oldPassword:
+      type: object
+      required:
+        - oldPassword
+      additionalProperties: false
+      properties:
+        oldPassword:
+          $ref: '#/components/schemas/typeString'
+    
+    ForgotPassword:
+      type: object
+      additionalProperties: false
+      properties:
+        newPassword:
+          $ref: '#/components/schemas/typeString'
+      oneOf:
+        - $ref: '#/components/schemas/token'
+        - $ref: '#/components/schemas/oldPassword'
+        
+          
+          
+                   
+      
 
       
 

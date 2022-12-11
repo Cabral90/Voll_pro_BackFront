@@ -187,6 +187,16 @@ CREATE TABLE voll_all (
 
 );
 
+CREATE TABLE "sch_voll".doc_voll(
+    id_voll UUID, 
+    fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    doc_name TEXT NOT NULL, 
+    doc BYTEA NOT NULL,
+    extencion CHAR(4),
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 CREATE TABLE "sch_voll".pago_voll (
     id_voll UUID, 
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
