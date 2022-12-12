@@ -786,7 +786,7 @@ paths:
           description: Voluntario not found
           content: {}
           
-  'passwords':
+  '/passwords':
     put:
       tags:
         - password
