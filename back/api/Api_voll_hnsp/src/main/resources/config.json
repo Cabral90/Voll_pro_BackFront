@@ -1,4 +1,7 @@
 {
-  "port": "8080",
-  "": ""
+  "port": "5432",
+  "host": "192.168.1.77",
+  "database": "db_voll_hnsp",
+  "user": "user_voll",
+  "password": "voll290722"
 }

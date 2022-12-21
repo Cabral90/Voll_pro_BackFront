@@ -12,7 +12,10 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.JWTAuthHandler;
 import io.vertx.ext.web.openapi.RouterBuilder;
+import io.vertx.pgclient.PgConnectOptions;
 import io.vertx.pgclient.PgPool;
+import io.vertx.sqlclient.PoolOptions;
+import io.vertx.sqlclient.Row;
 
 
 public class Verticol2  extends AbstractVerticle {
@@ -27,11 +30,44 @@ public class Verticol2  extends AbstractVerticle {
 
     @Override
       public void start() {
+      System.out.println(" Start Verticle: Ok");
+      clientDB().compose(this::preubaConexion);
 
     }
 
+  private Future<Void> preubaConexion(Void unused) {
+    System.out.println("Hay coneccion ...");
 
-    public Future<Void> setUpInitialData(Void vd) {
+    pool.getConnection().compose(res ->
+      res.query("SELECT * FROM  sch_voll.voluntario")
+        .execute()
+        .flatMap(res2 ->{
+
+        JsonObject voll = new JsonObject();
+        //Row row = res2.iterator().next();
+
+        for (Row row : res2) {
+
+          System.out.println(row.toJson().encodePrettily());
+          /*
+          voll
+            .put("id", row.getUUID("id"))
+            .put("nombre", row.getUUID("nombre"))
+            .put("apellidos", row.getUUID("apellidos"));
+            */
+
+        }
+        return Future.succeededFuture(voll);
+      }).onSuccess(ok -> {
+        System.out.println(ok.encodePrettily());
+      }).onFailure( err ->{
+        System.out.println(err.getMessage());
+      }));
+    return Future.succeededFuture();
+  }
+
+
+  public Future<Void> setUpInitialData(Void vd) {
 
 
       RouterBuilder.create(vertx, "src/main/resources/edit_voll_v2.yaml")//"openapi.yaml")
@@ -152,6 +188,26 @@ public class Verticol2  extends AbstractVerticle {
       .putHeader("Content-Type", "application/json")
       .end(json.toBuffer());
 
+  }
+
+  public Future<Void> clientDB(
+
+  ) {
+
+    PgConnectOptions connectOptions = new PgConnectOptions()
+      .setPort(5432)
+      .setHost("192.168.1.77")
+      .setDatabase("db_voll_hnsp")
+      .setUser("postgres")
+      .setPassword("postgres");
+
+    PoolOptions poolOptions = new PoolOptions()
+      .setMaxSize(5);
+
+    this.pool = PgPool.pool(vertx, connectOptions, poolOptions);
+
+
+    return Future.succeededFuture();
   }
 
 
