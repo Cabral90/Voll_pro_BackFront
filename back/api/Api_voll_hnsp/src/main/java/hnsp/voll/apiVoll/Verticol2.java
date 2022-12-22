@@ -17,6 +17,12 @@ import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Row;
 
+import java.time.OffsetDateTime;
+import java.util.Optional;
+import java.util.UUID;
+
+import static hnsp.voll.apiVoll.utils.QueryDB.*;
+
 
 public class Verticol2  extends AbstractVerticle {
 
@@ -69,7 +75,6 @@ public class Verticol2  extends AbstractVerticle {
 
   public Future<Void> setUpInitialData(Void vd) {
 
-
       RouterBuilder.create(vertx, "src/main/resources/edit_voll_v2.yaml")//"openapi.yaml")
         .onSuccess(routerBuilder -> {
           System.out.println(" Call  all endpoint: Ok");
@@ -113,6 +118,7 @@ public class Verticol2  extends AbstractVerticle {
       System.out.println("AQUI VAMOS A LLAMAR TODOS LOS ENDPOINT ==>>");
 
       router.operation("createvoll").handler(this::createvoll);
+      router.operation("updateSeccion").handler(this::updateSeccion);
 
       /*
       router.operation("getAllVoll").handler(this::getAllVoll);
@@ -163,7 +169,131 @@ public class Verticol2  extends AbstractVerticle {
 
     }
 
+  private void updateSeccion(RoutingContext router) {
+
+  }
+
+  private void login(RoutingContext routingContext) {
+
+    final String sessionId = UUID.randomUUID().toString();
+
+    String email = routingContext.request().getParam("email");
+    String password = routingContext.request().getParam("password");
+
+    String login = sqlLogin(routingContext);
+
+
+    pool
+      .getConnection()
+      .compose(conn -> conn
+        .query(login)
+        .execute()
+        .compose(result -> {
+          if (result.rowCount() != 1)
+            return Future.failedFuture("404");
+          Row row = result.iterator().next();
+          System.out.println(row.toJson().encodePrettily());
+
+          //String role = getRole(row.getUUID("id").toString(),
+          //  row.getUUID("role_id").toString());
+
+          JsonObject session = new JsonObject();
+          if (email.equals(row.getString("email")) &&
+            password.equals(row.getString("password"))) {
+
+            System.out.println("login OK ...");
+
+            JWTAuthOptions jwt = new JWTAuthOptions()
+              .addPubSecKey(new PubSecKeyOptions()
+                .setAlgorithm("HS256")
+                .setBuffer("superKey"));
+            jwt.getJWTOptions().setSubject(sessionId);
+
+
+            JWTAuth auth = JWTAuth.create(vertx, jwt);
+            String token =
+              auth.generateToken(new JsonObject()
+                .put("sessionId", sessionId)
+                .put("userId", row.getUUID("id").toString())
+                .put("lastSeen", Optional
+                  .ofNullable(row.getOffsetDateTime("last_seen"))
+                  .map(OffsetDateTime::toInstant)
+                  .orElse(null))
+                .put("nombre", row.getString("nombre"))
+                .put("apellidos", row.getString("apellidos"))
+                //.put("companyId", row.getUUID("company_id").toString())
+                //.put("role", role)
+                .put("email", row.getString("email")), jwt.getJWTOptions());
+
+            session
+              .put("sessionId", sessionId)
+              .put("token", token)
+              .put("user", new JsonObject()
+                .put("id", row.getUUID("id").toString())
+                .put("createdAt", row.getOffsetDateTime("created_at").toInstant())
+
+                .put("lastSeen", Optional
+                  .ofNullable(row.getOffsetDateTime("last_seen"))
+                  .map(OffsetDateTime::toInstant)
+                  .orElse(null))
+                //.put("role", role)
+                .put("nombre", row.getString("nombre"))
+                .put("apellidos", row.getString("apellidos"))
+                //.put("companyId", row.getUUID("company_id").toString())
+                //.put("surname", row.getString("surname"))
+                .put("email", row.getString("email")));
+
+            return Future.succeededFuture(session);
+          }
+
+          return Future.succeededFuture();
+        })
+        .compose(session -> {
+          System.out.println("Token: " + session.encodePrettily());
+
+          String saveSession = sqlInsertSessionData(session, sessionId);
+          String updateLastSeen = sqlUpdateLastSession(session);
+          conn.
+            query(saveSession)
+            .execute()
+            .compose(res4 ->
+              conn.
+                query(updateLastSeen)
+                .execute());
+
+          return Future.succeededFuture(session.getString("token"));
+
+        })
+        .recover(err -> {
+          System.out.println(err.getMessage());
+          return Future.failedFuture("error!");
+        })
+        .onSuccess(res3 -> {
+
+          routingContext
+            .response()
+            .setStatusCode(200)
+            .putHeader("content-type", "application/json")
+            .end(new JsonObject().put("token", res3).encode());
+        }))
+
+      .onFailure(err -> {
+        routingContext
+          .response()
+          .putHeader("content-type", "application/json")
+          .end(err.getMessage()); // TODO: rever erroes
+        System.out.println(err.getMessage());
+      });
+
+  }
+
+
+
+
+
   private void createvoll(RoutingContext routingContext) {
+
+
   }
 
 
