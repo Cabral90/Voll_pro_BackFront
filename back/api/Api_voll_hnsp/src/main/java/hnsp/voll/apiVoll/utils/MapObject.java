@@ -6,17 +6,14 @@ import io.vertx.ext.web.RoutingContext;
 public class MapObject {
   public static JsonObject session(RoutingContext routingContext){
     String sessionId = routingContext.user().principal().getString("sessionId");
-    String companyId = routingContext.request().getParam("companyId");
 
-    System.out.println("companyId: " + companyId);
+    System.out.println("sessionId: " + sessionId);
 
     JsonObject updateSession = new JsonObject()
       .put("sessionId", sessionId)
-      .put("userId", routingContext.user().principal().getString("userId"))
-      .put("companyId", companyId) // TODO: como obtener este ID ?
-      .put("name", routingContext.user().principal().getString("name"))
-      .put("surname", routingContext.user().principal().getString("surname"))
-      .put("role", routingContext.user().principal().getString("role"))
+      .put("id", routingContext.user().principal().getString("id"))
+      .put("nombre", routingContext.user().principal().getString("nombre"))
+      .put("apellidos", routingContext.user().principal().getString("apellidos"))
       .put("email", routingContext.user().principal().getString("email"));
 
     return updateSession;

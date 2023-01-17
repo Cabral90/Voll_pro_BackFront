@@ -106,14 +106,36 @@ GRANT rol_Voll TO user_voll;
 
 -- CREATE TABLES 
 
+CREATE TABLE "sch_voll".admin(
+  id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+  fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  super_admin BOOLEAN DEFAULT NULL,
+  nanombre TEXT NOT NULL,
+  apellidos TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL
+);
+
+CREATE TABLE "sch_voll".admin_voll(
+    id_admin UUID,
+    id_voll UUID,
+    fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id_admin, id_voll),
+    FOREIGN KEY (id_admin) REFERENCES "sch_voll".admin (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
+
+);
+
 CREATE TABLE "sch_voll".voluntario (
     id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_nascimiento DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'), 
-    fecha_emision_pas DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
-    fecha_caducidad_pas	DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
-    fecha_ini_estancia DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
+    fecha_emision_pas DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM01/01/1975','DD/MM/YYYY'),
+    fecha_ini_estancia DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM01/01/1975','DD/MM/YYYY'),
+    fecha_caducidad_pasa DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM01/01/1975','DD/MM/YYYY'),
     fecha_fin_estancia DATE NOT NULL DEFAULT TO_TIMESTAMP('01/01/1975','DD/MM/YYYY'),
     nacionalidad TEXT NOT NULL, 
     nombre	TEXT NOT NULL, 
@@ -125,9 +147,24 @@ CREATE TABLE "sch_voll".voluntario (
     profesion TEXT NOT NULL, 
     tido_voluntariado TEXT NOT NULL, 
     telefono TEXT NOT NULL, 
-    email TEXT NOT NULL, 
-    inst_referencia	 TEXT NOT NULL
+    email TEXT UNIQUE NOT NULL, 
+    inst_referencia	 TEXT NOT NULL,
+    lastSeen TIMESTAMP WITH TIME ZONE
 );
+
+CREATE TABLE "sch_voll".data_login (
+    id_voll UUID  NOT NULL, 
+    fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+
+    FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
+
+);
+
+INSERT INTO "sch_voll".data_login VALUES ('dffe09a5-e7d8-6fe7-fcf3-e2cf4fc50426',default, default, 'afarres19@gmail.com','73290f2fec53e6e025e492ab587d727455ecffa58d831f79dc32cf06d56be157')
+
 CREATE TABLE "sch_voll".residencia_voll (
     id_voll UUID  NOT NULL, 
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -242,7 +279,7 @@ CREATE TABLE "sch_voll".secion_hnsp (
 );
 
 CREATE TABLE "sch_voll".hnsp_secion_voll(
-    id UUID,
+    id_secion UUID,
     id_voll UUID,
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
@@ -251,23 +288,24 @@ CREATE TABLE "sch_voll".hnsp_secion_voll(
     nombre TEXT NOT NULL,
     responsable TEXT NOT NULL,
 
-    PRIMARY KEY (id, id_voll),
-    FOREIGN KEY (id) REFERENCES "sch_voll".secion_hnsp (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    PRIMARY KEY (id_secion, id_voll),
+    FOREIGN KEY (id_secion) REFERENCES "sch_voll".secion_hnsp (id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (id_voll) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- CREATE ALL TABLE TECNICAL 
 CREATE TABLE "sch_voll".session_up(
     id UUID,
-    voll_id UUID NOT NULL,
+    voll_id UUID UNIQUE PRIMARY KEY NOT NULL,
+    email TEXT UNIQUE NOT NULL, 
     token TEXT NOT NULL,
     PRIMARY KEY (id, voll_id),
     FOREIGN KEY(voll_id) REFERENCES "sch_voll".voluntario (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE "sch_voll".password(
-    id UUID PRIMARY KEY UNIQUE DEFAULT gen_random_uuid(),
-    id_voll UUID NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id_voll UUID UNIQUE NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     url TEXT NOT NULL,
     FOREIGN KEY(id_voll) REFERENCES "sch_voll".voluntario(id) ON DELETE RESTRICT ON UPDATE CASCADE
@@ -284,14 +322,14 @@ CREATE TABLE "sch_voll".role(
     id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    name TEXT  UNIQUE NOT NULL
+    nombre TEXT  UNIQUE NOT NULL
 );
 
 CREATE TABLE "sch_voll".permission(
     id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
     fecha_creacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     fecha_ult_atualizacion TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    name TEXT  UNIQUE NOT NULL
+    nombre TEXT  UNIQUE NOT NULL
 );
 
 CREATE TABLE "sch_voll".permission_role(  -- Relacion N a N / muchos a muchos

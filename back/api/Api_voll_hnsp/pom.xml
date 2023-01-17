@@ -19,7 +19,8 @@
     <vertx.version>4.3.2</vertx.version>
     <junit-jupiter.version>5.7.0</junit-jupiter.version>
 
-    <main.verticle>hnsp.voll.apiVoll.MainVerticle</main.verticle>
+   <main.verticle>hnsp.voll.apiVoll.MainVerticle</main.verticle>
+    <!-- <main.verticle>hnsp.voll.apiVoll.Verticol2</main.verticle> -->
     <launcher.class>io.vertx.core.Launcher</launcher.class>
 
     <java.version>16</java.version>
@@ -47,10 +48,7 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-auth-jwt</artifactId>
     </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
-      <artifactId>vertx-pg-client</artifactId>
-    </dependency>
+
 
     <dependency>
       <groupId>io.vertx</groupId>
@@ -154,12 +152,6 @@
 
     <dependency>
       <groupId>io.vertx</groupId>
-      <artifactId>vertx-codegen</artifactId>
-      <version>${vertx.version}</version>
-      <classifier>processor</classifier>
-    </dependency>
-    <dependency>
-      <groupId>io.vertx</groupId>
       <artifactId>vertx-sql-client-templates</artifactId>
       <version>${vertx.version}</version>
     </dependency>
@@ -170,20 +162,50 @@
       <version>2.1</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-codegen</artifactId>
+      <version>${vertx.version}</version>
+      <classifier>processor</classifier>
+    </dependency>
+
+
+    <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.10.0</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-shade-plugin -->
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-shade-plugin</artifactId>
+      <version>3.4.1</version>
+    </dependency>
+
+
+
+
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
+        <!-- <version>3.10.0</version> -->
+       <!----> <version>${maven-compiler-plugin.version}</version>
         <configuration>
+          <!-- <release>11</release> -->
           <release>11</release>
+
         </configuration>
       </plugin>
+
       <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>${maven-shade-plugin.version}</version>
+       <artifactId>maven-shade-plugin</artifactId>
+        <!-- <version>3.4.1</version> -->
+        <!----> <version>${maven-shade-plugin.version}</version>
         <executions>
           <execution>
             <phase>package</phase>

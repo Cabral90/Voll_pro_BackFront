@@ -1,7 +1,13 @@
 package hnsp.voll.apiVoll.utils;
 
+import io.vertx.core.MultiMap;
+import io.vertx.core.json.JsonObject;
+
 import java.math.BigInteger;
+import java.net.URLDecoder;
 import java.security.MessageDigest;
+import java.util.List;
+import java.util.Map;
 
 public class Utils {
 
@@ -20,6 +26,40 @@ public class Utils {
       ex.printStackTrace();
     }
     return pwd;
+  }
+
+
+  private JsonObject getRequestParams(MultiMap params){
+
+    JsonObject paramMap = new JsonObject();
+    for( Map.Entry entry: params.entries()){
+      String key = (String)entry.getKey();
+      Object value = entry.getValue();
+      if(value instanceof List){
+        value = (List<String>) entry.getValue();
+      }
+      else{
+        value = (String) entry.getValue();
+      }
+      paramMap.put(key, value);
+    }
+    return paramMap;
+  }
+
+  private static JsonObject getQueryMap(String query)
+  {
+    String[] params = query.split("&");
+    JsonObject map = new JsonObject();
+    for (String param : params) {
+      String name = param.split("=")[0];
+      String value = "";
+      try {
+        value = URLDecoder.decode(param.split("=")[1], "UTF-8");
+      } catch (Exception e) {
+      }
+      map.put(name, value);
+    }
+    return map;
   }
 
 }

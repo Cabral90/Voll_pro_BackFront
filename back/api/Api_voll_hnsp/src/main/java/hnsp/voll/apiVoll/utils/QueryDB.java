@@ -87,22 +87,24 @@ public class QueryDB {
   }
 
   public static String sqlInsertSessionData(JsonObject session, String sessionId) {
-    String sql = "INSERT INTO app_chirpstack_user.session_up2  " +
-      " (id, user_id, email, name, role, token) " +
+
+    String nomCompleto = session.getString("nombre") + " " + session.getString("apellidos");
+    System.out.println("nom comple => "+nomCompleto);
+    String sql = "INSERT INTO sch_voll.session_up " +
+      " (id, voll_id, token) " +
       "VALUES ( " +
       "'" + sessionId + "'," +
-      " '" + session.getJsonObject("user").getString("id") + "', " +
-      "'" + session.getJsonObject("user").getString("email") + "'," +
-      "'" + session.getJsonObject("user").getString("name") + "'," +
-      " '" + session.getJsonObject("user").getString("role") + "', " +
+      //" '" + session.getJsonObject("user").getString("id") + "', " +
+      " '" + session.getString("id") + "', " +
       " '" + session.getString("token") + "') ";
 
+    System.out.println("quei ok UPDATE REG SESSION");
     return sql;
   }
 
   public static String sqlUpdateLastSession(JsonObject session) {
-    String sql = " UPDATE app_chirpstack_user.user SET last_seen = 'NOW()' " +
-      "WHERE id = '" + session.getJsonObject("user").getString("id") + "'";
+    String sql = " UPDATE sch_voll.voluntario SET lastseen = 'NOW()' " +
+      "WHERE id = '" + session.getString("id") + "'";
     return sql;
   }
 
@@ -225,13 +227,20 @@ public class QueryDB {
 
     String email = routingContext.request().getParam("email");
     String password = routingContext.request().getParam("password");
+
+    String decryptPwd = Utils.encriptyPass(password);
+
+    System.out.println("Emcript pwd SQL =>"+ decryptPwd);
+
     String login ="select b.id, b.nombre, " +
-      "b.apellidos, a.\"password\", a.email\n" +
+      "b.apellidos, a.\"password\", a.email,\n" +
+      "b.lastSeen "+
       "from sch_voll.data_login a \n" +
       "inner join sch_voll.voluntario b \n" +
       "on b.id = a.id_voll " +
-      "WHERE email = '"+email+ " AND ' password ='"+password+"'";
+      "WHERE a.email = '"+email+ "' AND a.password ='"+decryptPwd+"'";
 
+    //System.out.println("SQL LOGIN "+ login);
     return login;
 
   }

@@ -1,9 +1,13 @@
 package hnsp.voll.apiVoll;
 
+import hnsp.voll.apiVoll.utils.Utils;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.multipart.FileUpload;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.auth.PubSecKeyOptions;
 import io.vertx.ext.auth.jwt.JWTAuth;
@@ -17,10 +21,15 @@ import io.vertx.pgclient.PgPool;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Row;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.time.OffsetDateTime;
+import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
+import static hnsp.voll.apiVoll.utils.MapObject.session;
 import static hnsp.voll.apiVoll.utils.QueryDB.*;
 
 
@@ -37,40 +46,13 @@ public class Verticol2  extends AbstractVerticle {
     @Override
       public void start() {
       System.out.println(" Start Verticle: Ok");
-      clientDB().compose(this::preubaConexion);
+      //clientDB().compose(this::preubaConexion); // setUpInitialData
+
+      clientDB().compose(this::setUpInitialData);
 
     }
 
-  private Future<Void> preubaConexion(Void unused) {
-    System.out.println("Hay coneccion ...");
 
-    pool.getConnection().compose(res ->
-      res.query("SELECT * FROM  sch_voll.voluntario")
-        .execute()
-        .flatMap(res2 ->{
-
-        JsonObject voll = new JsonObject();
-        //Row row = res2.iterator().next();
-
-        for (Row row : res2) {
-
-          System.out.println(row.toJson().encodePrettily());
-          /*
-          voll
-            .put("id", row.getUUID("id"))
-            .put("nombre", row.getUUID("nombre"))
-            .put("apellidos", row.getUUID("apellidos"));
-            */
-
-        }
-        return Future.succeededFuture(voll);
-      }).onSuccess(ok -> {
-        System.out.println(ok.encodePrettily());
-      }).onFailure( err ->{
-        System.out.println(err.getMessage());
-      }));
-    return Future.succeededFuture();
-  }
 
 
   public Future<Void> setUpInitialData(Void vd) {
@@ -95,7 +77,12 @@ public class Verticol2  extends AbstractVerticle {
           this.router = Router.router(vertx)
             .errorHandler(400, rc -> sendError(rc, 400, rc.failure().getMessage()));
 
+
+
           router.mountSubRouter("/v1", routerBuilder.createRouter());
+
+          //router.route().putMetadata("/v1", routerBuilder.createRouter());
+
 
           router.errorHandler(500, rc -> {
             rc.failure().printStackTrace();
@@ -105,7 +92,7 @@ public class Verticol2  extends AbstractVerticle {
           vertx
             .createHttpServer()
             .requestHandler(router)
-            .listen(8088);
+            .listen(8080);
 
           System.out.println("Listening .... ");
         })
@@ -116,9 +103,17 @@ public class Verticol2  extends AbstractVerticle {
     private void allFunction(RouterBuilder router) {
 
       System.out.println("AQUI VAMOS A LLAMAR TODOS LOS ENDPOINT ==>>");
-
+/*
       router.operation("createvoll").handler(this::createvoll);
       router.operation("updateSeccion").handler(this::updateSeccion);
+*/
+      router.operation("getTest").handler(this::TestData);
+      router.operation("login").handler(this::login);
+      //router.operation("statusSession").handler(this::statusSession);
+      router.operation("updateSession").handler(this::updateSession);
+      router.operation("logout").handler(this::logout);
+
+      router.operation("uploadDoc").handler(this::uploadDoc);
 
       /*
       router.operation("getAllVoll").handler(this::getAllVoll);
@@ -169,19 +164,76 @@ public class Verticol2  extends AbstractVerticle {
 
     }
 
-  private void updateSeccion(RoutingContext router) {
+  private void uploadDoc(RoutingContext routingContext) {
+
+
+
+      // Use the Event Bus to dispatch the file now
+      // Since Event Bus does not support POJOs by default so we need to create a MessageCodec implementation
+      // and provide methods for encode and decode the bytes
+
+
+
 
   }
 
+
+  private void TestData(RoutingContext routingContext) {
+    System.out.println("Hay coneccion ...");
+
+    pool.getConnection().compose(res ->
+      res.query("SELECT * FROM  sch_voll.voluntario")
+        .execute()
+        .flatMap(res2 ->{
+
+          JsonObject voll = new JsonObject();
+          JsonArray listVoll = new JsonArray();
+          //Row row = res2.iterator().next();
+
+          for (Row row : res2) {
+            listVoll.add(row.toJson());
+            System.out.println(row.toJson().encodePrettily());
+          /*
+          voll
+            .put("id", row.getUUID("id"))
+            .put("nombre", row.getUUID("nombre"))
+            .put("apellidos", row.getUUID("apellidos"));
+            */
+
+          }
+
+          routingContext
+            .response()
+            .setStatusCode(200)
+            .putHeader("content-type", "application/json")
+            //.end(new JsonObject().put("token", res3).encode());
+
+          .end(listVoll.encodePrettily());
+          return Future.succeededFuture(voll);
+        }).onSuccess(ok -> {
+        System.out.println(ok.encodePrettily());
+      }).onFailure( err ->{
+        System.out.println(err.getMessage());
+      }));
+
+  }
+
+  private void updateSeccion(RoutingContext router) {
+
+  }
+/* */
   private void login(RoutingContext routingContext) {
 
     final String sessionId = UUID.randomUUID().toString();
 
     String email = routingContext.request().getParam("email");
     String password = routingContext.request().getParam("password");
+    String encriptPass = Utils.encriptyPass(password);
 
+    System.out.println("Emcript pwd ROW =>"+ password);
     String login = sqlLogin(routingContext);
 
+    System.out.println("LOGIN SQL => "+ login);
 
     pool
       .getConnection()
@@ -192,14 +244,20 @@ public class Verticol2  extends AbstractVerticle {
           if (result.rowCount() != 1)
             return Future.failedFuture("404");
           Row row = result.iterator().next();
+          // muestra datos
           System.out.println(row.toJson().encodePrettily());
+
+          System.out.println("pass find :"+ row.getString("email"));
+          System.out.println("email find =>"+ email);
+
 
           //String role = getRole(row.getUUID("id").toString(),
           //  row.getUUID("role_id").toString());
 
           JsonObject session = new JsonObject();
+
           if (email.equals(row.getString("email")) &&
-            password.equals(row.getString("password"))) {
+            encriptPass.equals(row.getString("password"))) {
 
             System.out.println("login OK ...");
 
@@ -216,32 +274,27 @@ public class Verticol2  extends AbstractVerticle {
                 .put("sessionId", sessionId)
                 .put("userId", row.getUUID("id").toString())
                 .put("lastSeen", Optional
-                  .ofNullable(row.getOffsetDateTime("last_seen"))
+                  .ofNullable(row.getOffsetDateTime("lastseen"))
                   .map(OffsetDateTime::toInstant)
                   .orElse(null))
                 .put("nombre", row.getString("nombre"))
                 .put("apellidos", row.getString("apellidos"))
-                //.put("companyId", row.getUUID("company_id").toString())
-                //.put("role", role)
+
                 .put("email", row.getString("email")), jwt.getJWTOptions());
+
+            System.out.println("el token => "+token);
 
             session
               .put("sessionId", sessionId)
-              .put("token", token)
-              .put("user", new JsonObject()
                 .put("id", row.getUUID("id").toString())
-                .put("createdAt", row.getOffsetDateTime("created_at").toInstant())
-
+                .put("token", token)
                 .put("lastSeen", Optional
-                  .ofNullable(row.getOffsetDateTime("last_seen"))
+                  .ofNullable(row.getOffsetDateTime("lastseen"))
                   .map(OffsetDateTime::toInstant)
                   .orElse(null))
-                //.put("role", role)
                 .put("nombre", row.getString("nombre"))
                 .put("apellidos", row.getString("apellidos"))
-                //.put("companyId", row.getUUID("company_id").toString())
-                //.put("surname", row.getString("surname"))
-                .put("email", row.getString("email")));
+                .put("email", row.getString("email"));
 
             return Future.succeededFuture(session);
           }
@@ -253,6 +306,9 @@ public class Verticol2  extends AbstractVerticle {
 
           String saveSession = sqlInsertSessionData(session, sessionId);
           String updateLastSeen = sqlUpdateLastSession(session);
+
+          System.out.println("SAVE SECION SQL => "+ saveSession);
+          System.out.println("UPDATE LAST_SEE SQL => "+ updateLastSeen);
           conn.
             query(saveSession)
             .execute()
@@ -284,6 +340,122 @@ public class Verticol2  extends AbstractVerticle {
           .end(err.getMessage()); // TODO: rever erroes
         System.out.println(err.getMessage());
       });
+
+  }
+
+  //OUTROS =>>>
+
+  private void logout(RoutingContext routingContext) {
+
+    System.out.println(" init logouat ...");
+
+    String id = routingContext.user().principal().getString("sessionId");
+
+    String sql = "DELETE FROM sch_voll.session_up WHERE  id = '" + id + "' ";
+
+    System.out.println("SQL: " + sql);
+
+    pool
+      .getConnection()
+      .flatMap(conn -> //{
+        conn
+          .begin()
+          .compose(tx -> {
+            return
+              conn
+                .query(sql)
+                .execute()
+                .compose(size -> {
+
+                  if (size.rowCount() != 1) {
+                    System.out.println("HA HABIDO UN ERROR !");
+                    return Future.failedFuture("404");
+                  }
+                  tx.commit();
+                  return Future.succeededFuture();
+                })
+                .eventually(v -> conn.close());
+          })
+          /*.recover(this::errorSqlEx)
+          .onSuccess(app -> {
+            routingContext.response().setStatusCode(204).end();
+          }) */
+
+          .onSuccess(res3 -> {
+
+            routingContext
+              .response()
+              .setStatusCode(204).end();
+              //.putHeader("content-type", "application/json")
+              //.end(new JsonObject().put("token", res3).encode());
+          }))
+
+          .recover(err -> {
+            return Future.failedFuture(err.getMessage());
+          })
+          .onFailure(err -> {
+            routingContext.response()
+              .setStatusCode(400)
+              .end(err.getMessage());
+            System.out.println(err.getMessage());
+
+          });
+
+  }
+
+  private void updateSession(RoutingContext routingContext) {
+
+    JsonObject updateSession = session(routingContext);
+
+    JWTAuthOptions jwt = new JWTAuthOptions()
+      .addPubSecKey(new PubSecKeyOptions()
+        .setAlgorithm("HS256")
+        .setBuffer("superKey"));
+    jwt.getJWTOptions().setSubject(updateSession.getString("sessionId"));
+
+    JWTAuth auth = JWTAuth.create(vertx, jwt);
+    String token =
+      auth.generateToken(updateSession, jwt.getJWTOptions());
+
+    String sql = " UPDATE sch_voll.session_up  SET token = '" + token +
+      "' WHERE id = '" + updateSession.getString("sessionId") + "' RETURNING token";
+
+    pool
+      .getConnection()
+      .flatMap(conn -> //{
+        conn
+          .begin()
+          .compose(tx -> {
+            return
+              conn
+                .query(sql)
+                .execute()
+                .compose(size -> {
+
+                  if (size.rowCount() != 1) {
+                    return Future.failedFuture("404");
+                  }
+                  tx.commit();
+                  return Future.succeededFuture(size.iterator().next().toJson());
+                })
+                .eventually(v -> conn.close());
+          })
+          .recover(err -> {
+            return Future.failedFuture(err.getMessage());
+          })
+          .onSuccess(app -> {
+            routingContext.response()
+              .putHeader("content-type", "application/json")
+              .end(app.encode());
+
+          })
+          .onFailure(err -> {
+            routingContext.response().end(err.getMessage());
+            System.out.println(err.getMessage());
+
+          })
+      );
+
 
   }
 
